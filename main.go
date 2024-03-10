@@ -10,9 +10,9 @@ import (
 	"net/http"
 )
 
-const round = 2
+const round = 6
 
-const debug = true
+const debug = false
 
 func indexOf(element float64, data []float64) (result []int) {
 	for k, v := range data {
@@ -206,6 +206,10 @@ func generateClients(clientPerHour int, interval int) (result []float64) {
 	for i := 0; i < interval; i++ {
 		clients, over, clock := generateQueueInHour(clientPerHour, currentTime, overload, i+1 < interval)
 		currentTime = clock
+
+		if currentTime > float64(interval) {
+			break
+		}
 		overload = over
 		result = append(result, clients...)
 	}
@@ -291,7 +295,7 @@ func simulateRoute(c *gin.Context) {
 	// Return the simulation results
 	c.JSON(http.StatusOK, gin.H{
 		"clients":       clients,
-		"totalClients":  served + fail,
+		"totalClients":  len(clients),
 		"served":        served,
 		"fails":         fail,
 		"timelineWork":  timeLineWork,
